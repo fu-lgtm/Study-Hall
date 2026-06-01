@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Study Hall · 静室自习室</title>
+<meta name="description" content="Study Hall 静室自习室 — 选择沉浸场景、专注音乐与番茄钟，和朋友一起进入学习状态。A calm virtual study room with scenes, focus sounds, a pomodoro timer and friends.">
+<meta name="theme-color" content="#0b0d12">
+<!-- 分享卡片(微信/Twitter/Facebook 等) -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Study Hall · 静室自习室">
+<meta property="og:description" content="选择场景、音乐与节奏，和朋友一起专注。A calm virtual study room — focus, together.">
+<meta property="og:image" content="https://images.unsplash.com/photo-1507925921958-8a62f3d1a50d?w=1200&q=80">
+<meta name="twitter:card" content="summary_large_image">
+<!-- 内联 SVG favicon,无需额外文件 -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b0d12'/%3E%3Ctext x='16' y='23' font-size='20' text-anchor='middle' fill='%23d8bd8c' font-family='serif'%3E◖%3C/text%3E%3C/svg%3E">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;500;700&family=Outfit:wght@200;300;400;500;600&display=swap');
+
+:root{
+  --ink:#f6f4ee; --ink-dim:rgba(246,244,238,.58); --ink-faint:rgba(246,244,238,.32);
+  --glass:rgba(22,24,31,.38); --glass-strong:rgba(16,18,25,.66);
+  --border:rgba(255,255,255,.1); --border-soft:rgba(255,255,255,.06);
+  --accent:#d8bd8c; --accent-dim:rgba(216,189,140,.5);
+  --display:'Noto Serif SC',serif; --body:'Outfit','Noto Serif SC',sans-serif;
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;}
+body{font-family:var(--body);color:var(--ink);background:#0b0d12;overflow:hidden;-webkit-font-smoothing:antialiased;letter-spacing:.01em;}
+
+/* 背景层 */
+#bg{position:fixed;inset:0;z-index:0;transition:opacity 1.2s ease;}
+/* 顶部到底部的柔和压暗 + 四周暗角,聚焦中央、安定视线 */
+#bg::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(8,10,16,.5) 0%,rgba(8,10,16,.2) 38%,rgba(8,10,16,.62) 100%),
+             radial-gradient(120% 90% at 50% 45%,transparent 40%,rgba(6,8,13,.55) 100%);}
+.bg-img{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1.6s var(--ease);transform:scale(1.04);}
+.bg-img.show{opacity:1;animation:slowdrift 40s ease-in-out infinite alternate;}
+@keyframes slowdrift{from{transform:scale(1.04) translate(0,0);}to{transform:scale(1.09) translate(-1.5%,-1%);}}
+.bg-fallback{position:absolute;inset:0;background:linear-gradient(135deg,#161e2c,#232a39 50%,#1a2030);}
+
+/* 呼吸光晕:计时进行时在中央缓缓明灭,引导呼吸节奏 */
+#breath{position:fixed;left:50%;top:52%;width:60vmin;height:60vmin;transform:translate(-50%,-50%);
+  border-radius:50%;z-index:0;pointer-events:none;opacity:0;transition:opacity 2s ease;
+  background:radial-gradient(circle,var(--accent-dim) 0%,transparent 62%);filter:blur(40px);}
+#breath.on{opacity:.16;animation:breathe 11s var(--ease) infinite;}
+@keyframes breathe{0%,100%{transform:translate(-50%,-50%) scale(.78);opacity:.1;}50%{transform:translate(-50%,-50%) scale(1.12);opacity:.22;}}
+
+/* 视图切换 */
+.view{position:fixed;inset:0;z-index:1;display:none;flex-direction:column;opacity:0;transition:opacity .8s var(--ease);overflow-y:auto;}
+.view.active{display:flex;opacity:1;}
+
+/* 顶栏 */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:24px 38px;position:relative;z-index:5;flex-shrink:0;transition:opacity .8s var(--ease);}
+.brand{display:flex;align-items:center;gap:11px;font-size:16px;font-weight:400;letter-spacing:.08em;}
+.brand .mark{font-family:var(--display);color:var(--accent);font-size:19px;}
+.nav{display:flex;gap:34px;}
+.nav a{color:var(--ink-dim);text-decoration:none;font-size:13px;font-weight:300;letter-spacing:.1em;cursor:pointer;transition:.3s;}
+.nav a:hover{color:var(--ink);}
+.topbar-right{display:flex;gap:14px;align-items:center;}
+.pill{padding:9px 19px;border:1px solid var(--border);border-radius:30px;font-size:12.5px;color:var(--ink-dim);cursor:pointer;transition:.3s var(--ease);background:rgba(255,255,255,.025);backdrop-filter:blur(10px);letter-spacing:.04em;}
+.pill:hover{color:var(--ink);border-color:var(--accent-dim);}
+.pill.solid{background:var(--accent);color:#1a1610;border-color:var(--accent);font-weight:500;}
+
+/* ===== 落地页 ===== */
+#landing{justify-content:flex-end;}
+.hero{padding:0 56px 130px;max-width:780px;}
+#landing.active .hero>*{animation:rise 1s var(--ease) both;}
+#landing.active .hero .eyebrow{animation-delay:.15s;}
+#landing.active .hero h1{animation-delay:.32s;}
+#landing.active .hero p{animation-delay:.52s;}
+#landing.active .hero .btn-hero{animation-delay:.72s;}
+@keyframes rise{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+.hero .eyebrow{font-size:11px;letter-spacing:.5em;color:var(--ink-dim);margin-bottom:28px;text-transform:uppercase;}
+.hero h1{font-family:var(--display);font-size:62px;font-weight:500;line-height:1.18;margin-bottom:26px;text-shadow:0 2px 40px rgba(0,0,0,.45);letter-spacing:.02em;}
+.hero p{font-size:16px;font-weight:300;color:var(--ink-dim);max-width:430px;line-height:1.9;margin-bottom:42px;}
+.btn-hero{display:inline-flex;align-items:center;gap:10px;padding:16px 38px;background:var(--accent);color:#1a1610;border:none;border-radius:40px;font-size:15px;font-weight:500;font-family:var(--body);cursor:pointer;transition:.4s var(--ease);letter-spacing:.04em;}
+.btn-hero:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(214,185,134,.3);}
+
+/* ===== 场景选择页 ===== */
+#scenes{padding:0;}
+.scenes-inner{flex:1;display:flex;gap:28px;padding:10px 48px 48px;max-width:1280px;margin:0 auto;width:100%;align-items:flex-start;}
+.scenes-left{flex:1.6;}
+.scenes-right{flex:1;min-width:300px;}
+.step-label{font-size:11px;letter-spacing:.4em;color:var(--ink-faint);margin-bottom:10px;text-transform:uppercase;}
+.step-title{font-family:var(--display);font-size:24px;font-weight:500;margin-bottom:22px;}
+.scene-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.scene-card{position:relative;height:190px;border-radius:20px;overflow:hidden;cursor:pointer;border:1.5px solid var(--border-soft);transition:.3s;}
+.scene-card:hover{transform:translateY(-3px);border-color:var(--accent);}
+.scene-card.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);}
+.scene-card .img{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform .5s;}
+.scene-card:hover .img{transform:scale(1.06);}
+.scene-card .ov{position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(10,12,18,.85));}
+.scene-card .meta{position:absolute;left:16px;bottom:14px;right:16px;}
+.scene-card .meta h3{font-family:var(--display);font-size:18px;font-weight:500;margin-bottom:3px;}
+.scene-card .meta .tags{font-size:11px;color:var(--ink-dim);font-weight:300;}
+.scene-card .meta .amb{font-size:10px;color:var(--accent);margin-top:5px;letter-spacing:.05em;}
+.scene-card .scene-tag{position:absolute;top:12px;right:14px;font-size:9px;letter-spacing:.3em;color:var(--ink-faint);}
+
+.panel{background:var(--glass);backdrop-filter:blur(20px);border:1px solid var(--border-soft);border-radius:22px;padding:24px;margin-bottom:18px;}
+.ctrl{margin-bottom:20px;}
+.ctrl:last-child{margin-bottom:0;}
+.ctrl-head{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:400;margin-bottom:4px;}
+.ctrl-head .ico{font-size:15px;}
+.ctrl-sub{font-size:11px;color:var(--ink-faint);margin-bottom:12px;font-weight:300;}
+input[type=range]{width:100%;-webkit-appearance:none;height:3px;background:rgba(255,255,255,.18);border-radius:3px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:var(--accent);cursor:pointer;}
+.pomo-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.pomo-opt{padding:14px;text-align:center;border:1px solid var(--border-soft);border-radius:13px;font-size:14px;cursor:pointer;transition:.3s var(--ease);color:var(--ink-dim);background:rgba(255,255,255,.02);}
+.pomo-opt:hover{border-color:var(--accent-dim);color:var(--ink);}
+.pomo-opt.sel{background:var(--accent);color:#1a1610;border-color:var(--accent);font-weight:500;}
+.btn-enter{width:100%;padding:16px;margin-top:6px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:14px;color:var(--ink);font-family:var(--body);font-size:15px;cursor:pointer;transition:.4s var(--ease);display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:.03em;}
+.btn-enter:hover{background:var(--accent);color:#1a1610;border-color:var(--accent);}
+
+/* ===== 沉浸自习室 ===== */
+#room{justify-content:center;align-items:center;}
+/* 进入时各组件温柔渐入 */
+#room.active .fade-in{animation:soft 1.2s var(--ease) both;}
+@keyframes soft{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+/* 计时器:居中、大字、低存在感 */
+.room-timer{text-align:center;padding:0;background:none;border:none;backdrop-filter:none;}
+.room-timer .rt-head{display:flex;align-items:center;justify-content:center;gap:14px;font-size:11px;letter-spacing:.32em;color:var(--ink-dim);margin-bottom:18px;text-transform:uppercase;}
+.room-timer .rt-status{display:flex;align-items:center;gap:7px;}
+.room-timer .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 3s var(--ease) infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.25;}}
+.room-timer .rt-time{font-family:var(--display);font-size:clamp(96px,16vw,168px);font-weight:200;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:.01em;text-shadow:0 4px 60px rgba(0,0,0,.4);margin-bottom:22px;}
+.rt-prog{height:2px;width:240px;margin:0 auto 8px;background:rgba(255,255,255,.12);border-radius:3px;overflow:hidden;}
+.rt-prog>div{height:100%;background:var(--accent);width:0;transition:width 1s linear;}
+.rt-prog-label{display:flex;justify-content:space-between;width:240px;margin:0 auto;font-size:10px;letter-spacing:.1em;color:var(--ink-faint);}
+
+.goal-bar{position:absolute;top:84px;left:50%;transform:translateX(-50%);width:min(520px,78vw);background:var(--glass);backdrop-filter:blur(20px);border:1px solid var(--border-soft);border-radius:16px;padding:14px 22px;display:flex;align-items:center;gap:12px;}
+.goal-bar .gico{font-size:13px;color:var(--accent);letter-spacing:.05em;white-space:nowrap;}
+.goal-bar input{flex:1;background:transparent;border:none;color:var(--ink);font-family:var(--body);font-size:14px;outline:none;letter-spacing:.02em;}
+.goal-bar input::placeholder{color:var(--ink-faint);}
+
+.room-ctrl{position:absolute;bottom:42px;left:50%;transform:translateX(-50%);background:var(--glass-strong);backdrop-filter:blur(26px);border:1px solid var(--border-soft);border-radius:50px;padding:13px 20px;display:flex;align-items:center;gap:20px;}
+.mini-vol{display:flex;align-items:center;gap:9px;font-size:11px;color:var(--ink-dim);}
+.mini-vol input{width:68px;}
+.rc-divider{width:1px;height:22px;background:var(--border-soft);}
+.rc-btn{background:none;border:none;color:var(--ink-dim);font-size:13px;cursor:pointer;padding:8px 13px;border-radius:20px;transition:.3s var(--ease);font-family:var(--body);display:flex;align-items:center;gap:6px;letter-spacing:.03em;}
+.rc-btn:hover{background:rgba(255,255,255,.08);color:var(--ink);}
+.rc-btn.play{background:var(--accent);color:#1a1610;width:46px;height:46px;border-radius:50%;justify-content:center;font-size:16px;padding:0;}
+.rc-btn.play:hover{transform:scale(1.06);background:var(--accent);color:#1a1610;}
+.rc-btn.sound-btn{border:1px solid var(--border);color:var(--ink);background:var(--accent-soft,rgba(216,189,140,.12));}
+.rc-btn.sound-btn.muted{color:var(--ink-faint);background:none;border-color:var(--border-soft);}
+
+/* 沉浸模式按钮 */
+.zen-toggle{position:absolute;top:26px;left:50%;transform:translateX(-50%);z-index:6;}
+/* 沉浸模式开启:淡出一切辅助 UI,只留计时与呼吸 */
+#room.zen .goal-bar,#room.zen .buddies,#room.zen .rank,#room.zen .room-ctrl,#room.zen .exit-room,#room.zen .zen-toggle{
+  opacity:0;pointer-events:none;transform:translateY(8px);transition:.9s var(--ease);}
+#room.zen .goal-bar{transform:translateX(-50%) translateY(-8px);}
+#room.zen .room-ctrl{transform:translateX(-50%) translateY(8px);}
+#room:not(.zen) .goal-bar,#room:not(.zen) .buddies,#room:not(.zen) .rank,#room:not(.zen) .room-ctrl,#room:not(.zen) .exit-room,#room:not(.zen) .zen-toggle{transition:.9s var(--ease);}
+/* 沉浸模式下移动鼠标临时唤回控制条 */
+#room.zen.wake .room-ctrl,#room.zen.wake .zen-toggle{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0);}
+
+/* ===== 联动伙伴 ===== */
+.buddies{position:absolute;top:84px;right:48px;width:258px;background:var(--glass);backdrop-filter:blur(24px);border:1px solid var(--border-soft);border-radius:22px;padding:22px;}
+.buddies-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+.buddies-head h3{font-family:var(--display);font-size:16px;font-weight:500;letter-spacing:.04em;}
+.room-code{font-size:11px;color:var(--accent);cursor:pointer;display:flex;align-items:center;gap:5px;}
+.buddies-sub{font-size:11px;color:var(--ink-faint);margin-bottom:16px;}
+.buddy{display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid var(--border-soft);}
+.buddy:last-child{border-bottom:none;}
+.avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;position:relative;}
+.avatar .live{position:absolute;bottom:-1px;right:-1px;width:9px;height:9px;border-radius:50%;border:2px solid #1a1c24;}
+.buddy-info{flex:1;min-width:0;}
+.buddy-info .bn{font-size:13px;font-weight:400;display:flex;align-items:center;gap:6px;}
+.buddy-info .bs{font-size:10px;color:var(--ink-faint);margin-top:1px;}
+.buddy-time{font-size:12px;color:var(--accent);font-variant-numeric:tabular-nums;font-weight:500;}
+.invite-btn{width:100%;margin-top:14px;padding:10px;background:rgba(255,255,255,.05);border:1px dashed var(--border);border-radius:12px;color:var(--ink-dim);font-size:12px;cursor:pointer;font-family:var(--body);transition:.2s;}
+.invite-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+/* 排行榜 */
+.rank{position:absolute;bottom:40px;right:48px;width:260px;background:var(--glass);backdrop-filter:blur(22px);border:1px solid var(--border-soft);border-radius:22px;padding:18px 20px;}
+.rank h3{font-family:var(--display);font-size:15px;font-weight:500;margin-bottom:14px;display:flex;align-items:center;gap:7px;}
+.rank-row{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:13px;}
+.rank-no{width:18px;font-family:var(--display);color:var(--ink-faint);font-size:13px;}
+.rank-row.me .rank-name{color:var(--accent);font-weight:500;}
+.rank-row.top1 .rank-no{color:var(--accent);}
+.rank-name{flex:1;color:var(--ink-dim);}
+.rank-row.me .rank-name{color:var(--accent);}
+.rank-min{color:var(--ink);font-variant-numeric:tabular-nums;font-size:12px;}
+
+.exit-room{position:absolute;top:26px;right:48px;}
+
+/* toast */
+.toast{position:fixed;bottom:120px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--glass-strong);backdrop-filter:blur(20px);border:1px solid var(--border);border-radius:30px;padding:12px 24px;font-size:13px;z-index:100;opacity:0;transition:.4s;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+@media(max-width:900px){
+  .nav{display:none;}
+  .topbar{padding:18px 22px;}
+  .hero{padding:0 26px 70px;}
+  .hero h1{font-size:40px;}
+  .scenes-inner{flex-direction:column;padding:10px 24px 40px;}
+  #room{justify-content:flex-start;overflow-y:auto;padding:72px 0 130px;}
+  .room-timer{position:static;margin:30px auto 24px;}
+  .room-timer .rt-time{font-size:84px;}
+  .buddies,.rank{position:static;width:auto;margin:12px 24px;}
+  .goal-bar{position:static;transform:none;width:auto;margin:0 24px 8px;}
+  .room-ctrl{flex-wrap:wrap;justify-content:center;width:min(90vw,420px);bottom:24px;}
+}
+/* 尊重系统的"减少动态效果"偏好 */
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition-duration:.01ms!important;}
+  .bg-img.show{animation:none;}
+}
+</style>
+</head>
+<body>
+
+<div id="bg">
+  <div class="bg-fallback"></div>
+  <div class="bg-img" id="bgImg"></div>
+</div>
+<div id="breath"></div>
+
+<!-- ========== 落地页 ========== -->
+<section class="view active" id="landing">
+  <div class="topbar">
+    <div class="brand"><span class="mark">◖</span> Study Hall</div>
+    <nav class="nav">
+      <a onclick="go('scenes')" data-i18n="nav_scenes">场景</a>
+      <a onclick="go('scenes')" data-i18n="nav_music">音乐</a>
+      <a onclick="go('scenes')" data-i18n="nav_plan">计划</a>
+      <a data-i18n="nav_member">会员</a>
+    </nav>
+    <div class="topbar-right">
+      <span class="pill" onclick="toggleLang()" id="langBtn">中文 ▾</span>
+      <span class="pill" data-i18n="login">登录</span>
+    </div>
+  </div>
+  <div class="hero">
+    <div class="eyebrow">Focus · Learn · Grow</div>
+    <h1 data-i18n="hero_title">开启你的<br>清晨自习室</h1>
+    <p data-i18n="hero_sub">选择场景、音乐与节奏，把一天最清醒的时间留给真正重要的学习。和朋友一起，专注从不孤单。</p>
+    <button class="btn-hero" onclick="go('scenes')" data-i18n="hero_btn">开始学习 →</button>
+  </div>
+</section>
+
+<!-- ========== 场景选择页 ========== -->
+<section class="view" id="scenes">
+  <div class="topbar">
+    <div class="brand"><span class="mark">◖</span> Study Hall</div>
+    <nav class="nav">
+      <a onclick="go('landing')" data-i18n="nav_home">首页</a>
+      <a data-i18n="nav_scenes">场景</a><a data-i18n="nav_music">音乐</a><a data-i18n="nav_plan">计划</a>
+    </nav>
+    <div class="topbar-right"><span class="pill" onclick="go('landing')" data-i18n="back">← 返回</span></div>
+  </div>
+  <div class="scenes-inner">
+    <div class="scenes-left">
+      <div class="step-label">Step 01</div>
+      <div class="step-title" data-i18n="step1_title">选择你的学习场景</div>
+      <div class="scene-grid" id="sceneGrid"></div>
+    </div>
+    <div class="scenes-right">
+      <div class="panel">
+        <div class="step-label">Step 02</div>
+        <div class="step-title" style="margin-bottom:18px;" data-i18n="step2_title">设置声音氛围</div>
+        <div class="ctrl">
+          <div class="ctrl-head"><span class="ico">🎧</span> <span data-i18n="music">音乐</span></div>
+          <div class="ctrl-sub" data-i18n="music_sub">Lo-fi、轻音乐、钢琴等专注音乐</div>
+          <input type="range" id="musicVol" min="0" max="100" value="55">
+        </div>
+        <div class="ctrl">
+          <div class="ctrl-head"><span class="ico">🔊</span> <span data-i18n="ambient">背景音</span></div>
+          <div class="ctrl-sub" data-i18n="ambient_sub">根据当前场景自动匹配环境声</div>
+          <input type="range" id="ambVol" min="0" max="100" value="45">
+        </div>
+      </div>
+      <div class="panel">
+        <div class="step-label">Step 03</div>
+        <div class="step-title" style="margin-bottom:16px;" data-i18n="step3_title">设置番茄钟</div>
+        <div class="pomo-opts" id="pomoOpts">
+          <div class="pomo-opt sel" data-min="25" data-i18n="min25">25 分钟</div>
+          <div class="pomo-opt" data-min="45" data-i18n="min45">45 分钟</div>
+          <div class="pomo-opt" data-min="50" data-i18n="min50">50 分钟</div>
+          <div class="pomo-opt" data-min="90" data-i18n="min90">90 分钟</div>
+        </div>
+      </div>
+      <button class="btn-enter" onclick="enterRoom()" data-i18n="enter_room">进入自习室 →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 沉浸自习室 ========== -->
+<section class="view" id="room">
+  <div class="exit-room"><span class="pill" onclick="exitRoom()" data-i18n="exit">← 结束学习</span></div>
+  <div class="zen-toggle"><span class="pill" onclick="toggleZen()" id="zenBtn" data-i18n="zen_on">⊹ 沉浸模式</span></div>
+
+  <div class="room-timer fade-in">
+    <div class="rt-head">
+      <span id="rtName">POMODORO #1</span>
+      <span class="rt-status"><span class="dot"></span> <span data-i18n="studying">学习中</span></span>
+    </div>
+    <div class="rt-time" id="rtTime">25:00</div>
+    <div class="rt-prog"><div id="rtBar"></div></div>
+    <div class="rt-prog-label"><span data-i18n="progress">本轮进度</span><span id="rtPct">0%</span></div>
+  </div>
+
+  <div class="goal-bar fade-in">
+    <span class="gico" data-i18n="goal">◎ 今日目标</span>
+    <input type="text" data-i18n-ph="goal_ph" placeholder="写下今天想完成的事…" id="goalInput">
+  </div>
+
+  <!-- 伙伴联动 -->
+  <div class="buddies fade-in">
+    <div class="buddies-head">
+      <h3 data-i18n="study_together">一起自习</h3>
+      <span class="room-code" onclick="copyCode()" id="roomCode">⧉ 房间 ····</span>
+    </div>
+    <div class="buddies-sub" id="buddiesSub">房间里有 4 人正在学习</div>
+    <div id="buddyList"></div>
+    <button class="invite-btn" onclick="copyCode()" data-i18n="invite">+ 邀请朋友加入</button>
+  </div>
+
+  <!-- 排行榜 -->
+  <div class="rank fade-in">
+    <h3 data-i18n="rank_title">🏆 今日专注榜</h3>
+    <div id="rankList"></div>
+  </div>
+
+  <div class="room-ctrl fade-in">
+    <button class="rc-btn sound-btn" id="soundBtn" onclick="toggleSound()">🔇 声音关</button>
+    <div class="mini-vol"><input type="range" id="rAmb" min="0" max="100" value="55"></div>
+    <div class="rc-divider"></div>
+    <button class="rc-btn play" id="playBtn" onclick="toggleTimer()">⏸</button>
+    <button class="rc-btn" onclick="skipPhase()"><span data-i18n="skip">⏭ 跳过</span></button>
+    <button class="rc-btn" onclick="resetTimer()"><span data-i18n="reset">↺ 重置</span></button>
+  </div>
+</section>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ 场景数据(双语) ============ */
+const SCENES=[
+  {id:'morning',name:'清晨窗边',name_en:'Morning Window',tags:'晨光、植物、安静书桌',tags_en:'Sunrise · plants · quiet desk',amb:'轻雨与窗外白噪音',amb_en:'Light rain & outdoor white noise',
+   img:'https://images.unsplash.com/photo-1507925921958-8a62f3d1a50d?w=1600&q=80'},
+  {id:'cafe',name:'雨天咖啡店',name_en:'Rainy Café',tags:'暖灯、咖啡、低声环境',tags_en:'Warm light · coffee · low murmur',amb:'雨声与咖啡馆环境',amb_en:'Rain & café ambience',
+   img:'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=1600&q=80'},
+  {id:'library',name:'深夜图书馆',name_en:'Late-Night Library',tags:'书架、台灯、低干扰',tags_en:'Shelves · desk lamp · low distraction',amb:'纸页声与室内白噪音',amb_en:'Page rustle & indoor white noise',
+   img:'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=1600&q=80'},
+  {id:'seaside',name:'海边书房',name_en:'Seaside Study',tags:'海风、蓝光、开阔视野',tags_en:'Sea breeze · blue light · open view',amb:'海浪与微风',amb_en:'Waves & gentle wind',
+   img:'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=1600&q=80'},
+];
+/* ============ 偏好持久化(GitHub Pages 等独立环境可用) ============ */
+const PREFS_KEY='studyhall_prefs';
+function loadPrefs(){try{return JSON.parse(localStorage.getItem(PREFS_KEY))||{};}catch(e){return {};}}
+function savePrefs(p){try{localStorage.setItem(PREFS_KEY,JSON.stringify({...loadPrefs(),...p}));}catch(e){}}
+const _p=loadPrefs();
+
+let curScene = SCENES.find(s=>s.id===_p.scene) || SCENES[0];
+let pomoMin = [25,45,50,90].includes(_p.pomo) ? _p.pomo : 25;
+
+/* ============ 翻译字典 ============ */
+let lang = _p.lang==='en' ? 'en' : 'zh';
+const I18N={
+  nav_home:{zh:'首页',en:'Home'}, nav_scenes:{zh:'场景',en:'Scenes'}, nav_music:{zh:'音乐',en:'Music'},
+  nav_plan:{zh:'计划',en:'Plan'}, nav_member:{zh:'会员',en:'Membership'},
+  login:{zh:'登录',en:'Sign in'}, back:{zh:'← 返回',en:'← Back'},
+  hero_title:{zh:'开启你的<br>清晨自习室',en:'Begin your<br>morning study room'},
+  hero_sub:{zh:'选择场景、音乐与节奏，把一天最清醒的时间留给真正重要的学习。和朋友一起，专注从不孤单。',en:'Pick a scene, music and rhythm — give your sharpest hours to what truly matters. With friends, focus is never lonely.'},
+  hero_btn:{zh:'开始学习 →',en:'Start studying →'},
+  step1_title:{zh:'选择你的学习场景',en:'Choose your study scene'},
+  step2_title:{zh:'设置声音氛围',en:'Set the soundscape'},
+  music:{zh:'音乐',en:'Music'}, music_sub:{zh:'Lo-fi、轻音乐、钢琴等专注音乐',en:'Lo-fi, ambient, piano focus music'},
+  ambient:{zh:'背景音',en:'Ambient'}, ambient_sub:{zh:'根据当前场景自动匹配环境声',en:'Auto-matched to your current scene'},
+  step3_title:{zh:'设置番茄钟',en:'Set the pomodoro'},
+  min25:{zh:'25 分钟',en:'25 min'}, min45:{zh:'45 分钟',en:'45 min'}, min50:{zh:'50 分钟',en:'50 min'}, min90:{zh:'90 分钟',en:'90 min'},
+  enter_room:{zh:'进入自习室 →',en:'Enter study room →'},
+  exit:{zh:'← 结束学习',en:'← End session'}, studying:{zh:'学习中',en:'Studying'},
+  progress:{zh:'本轮进度',en:'Round progress'},
+  goal:{zh:'◎ 今日目标',en:'◎ Today\'s goal'}, goal_ph:{zh:'写下今天想完成的事…',en:'Write what you want to finish today…'},
+  study_together:{zh:'一起自习',en:'Study together'}, invite:{zh:'+ 邀请朋友加入',en:'+ Invite a friend'},
+  rank_title:{zh:'🏆 今日专注榜',en:'🏆 Today\'s focus board'},
+  skip:{zh:'⏭ 跳过',en:'⏭ Skip'}, reset:{zh:'↺ 重置',en:'↺ Reset'},
+  zen_on:{zh:'⊹ 沉浸模式',en:'⊹ Zen mode'}, zen_off:{zh:'⊹ 退出沉浸',en:'⊹ Exit zen'},
+  sound_on:{zh:'🔊 声音开',en:'🔊 Sound on'}, sound_off:{zh:'🔇 声音关',en:'🔇 Sound off'},
+};
+function t(key){return (I18N[key]&&I18N[key][lang])||key;}
+
+function applyLang(){
+  document.documentElement.lang = lang==='zh'?'zh':'en';
+  document.querySelectorAll('[data-i18n]').forEach(el=>{el.innerHTML=t(el.dataset.i18n);});
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{el.placeholder=t(el.dataset.i18nPh);});
+  document.getElementById('langBtn').textContent = lang==='zh'?'中文 ▾':'EN ▾';
+  // 重渲染动态内容
+  renderScenes(); renderBuddies(); renderRank(); updateRoomName();
+}
+function toggleLang(){lang = lang==='zh'?'en':'zh'; savePrefs({lang}); applyLang();}
+
+/* 渲染场景卡片 */
+const grid=document.getElementById('sceneGrid');
+function renderScenes(){
+  grid.innerHTML='';
+  SCENES.forEach((s)=>{
+    const c=document.createElement('div');
+    c.className='scene-card'+(s===curScene?' sel':'');
+    const nm=lang==='zh'?s.name:s.name_en, tg=lang==='zh'?s.tags:s.tags_en, am=lang==='zh'?s.amb:s.amb_en;
+    c.innerHTML=`<div class="img" style="background-image:url('${s.img}')"></div>
+      <div class="ov"></div><span class="scene-tag">SCENE</span>
+      <div class="meta"><h3>${nm}</h3><div class="tags">${tg}</div><div class="amb">${am}</div></div>`;
+    c.onclick=()=>{curScene=s;savePrefs({scene:s.id});renderScenes();setBg(s.img);if(soundOn)startAmbient();};
+    grid.appendChild(c);
+  });
+}
+renderScenes();
+
+/* 番茄钟选项 */
+document.querySelectorAll('.pomo-opt').forEach(o=>{
+  if(+o.dataset.min===pomoMin){document.querySelectorAll('.pomo-opt').forEach(x=>x.classList.remove('sel'));o.classList.add('sel');}
+  o.onclick=()=>{document.querySelectorAll('.pomo-opt').forEach(x=>x.classList.remove('sel'));o.classList.add('sel');pomoMin=+o.dataset.min;savePrefs({pomo:pomoMin});};
+});
+
+/* 背景切换 */
+const bgImg=document.getElementById('bgImg');
+function setBg(url){
+  const pre=new Image();
+  pre.onload=()=>{bgImg.style.backgroundImage=`url('${url}')`;bgImg.classList.add('show');};
+  pre.src=url;
+}
+setBg(curScene.img);
+
+/* 视图导航 */
+function go(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+/* ============ 联动伙伴(本地模拟) ============ */
+const BUDDIES=[
+  {name:'林一一',name_en:'Lina',emo:'🦊',color:'#e8a04a',subj:'高数 · 微积分',subj_en:'Calculus',min:182,live:'#4ade80'},
+  {name:'Ced',name_en:'Ced',emo:'🐼',color:'#6b9bd1',subj:'英语阅读',subj_en:'English reading',min:147,live:'#4ade80'},
+  {name:'阿哲',name_en:'Zach',emo:'🦉',color:'#c084d8',subj:'物理 9702',subj_en:'Physics 9702',min:96,live:'#fbbf24'},
+  {name:'小鹿',name_en:'Lulu',emo:'🦌',color:'#7fc99a',subj:'专业课复习',subj_en:'Major review',min:64,live:'#4ade80'},
+];
+let myMin=0;
+
+function genCode(){return Math.random().toString(36).slice(2,6).toUpperCase();}
+let roomCodeStr=genCode();
+
+function renderBuddies(){
+  const list=document.getElementById('buddyList');
+  if(!list)return;
+  list.innerHTML='';
+  BUDDIES.forEach(b=>{
+    const nm=lang==='zh'?b.name:b.name_en, sj=lang==='zh'?b.subj:b.subj_en;
+    const d=document.createElement('div');d.className='buddy';
+    d.innerHTML=`<div class="avatar" style="background:${b.color}33">${b.emo}<span class="live" style="background:${b.live}"></span></div>
+      <div class="buddy-info"><div class="bn">${nm}</div><div class="bs">${sj}</div></div>
+      <div class="buddy-time">${fmtMin(b.min)}</div>`;
+    list.appendChild(d);
+  });
+  const sub=document.getElementById('buddiesSub');
+  const n=BUDDIES.length+1;
+  sub.textContent = lang==='zh'?`房间里有 ${n} 人正在学习`:`${n} people studying in this room`;
+}
+function fmtMin(m){const h=Math.floor(m/60);return h>0?`${h}h${m%60}m`:`${m}m`;}
+
+function renderRank(){
+  const meName = lang==='zh'?'你':'You';
+  const all=[...BUDDIES.map(b=>({name:lang==='zh'?b.name:b.name_en,min:b.min,me:false})),{name:meName,min:myMin,me:true}];
+  all.sort((a,b)=>b.min-a.min);
+  const list=document.getElementById('rankList');if(!list)return;list.innerHTML='';
+  all.slice(0,5).forEach((r,i)=>{
+    const row=document.createElement('div');
+    row.className='rank-row'+(r.me?' me':'')+(i===0?' top1':'');
+    row.innerHTML=`<span class="rank-no">${i+1}</span><span class="rank-name">${r.name}</span><span class="rank-min">${fmtMin(r.min)}</span>`;
+    list.appendChild(row);
+  });
+}
+
+function copyCode(){
+  const text = lang==='zh'?`一起来自习室专注吧！房间号：${roomCodeStr}`:`Come focus with me! Room code: ${roomCodeStr}`;
+  if(navigator.clipboard)navigator.clipboard.writeText(text).catch(()=>{});
+  showToast(lang==='zh'?`房间号 ${roomCodeStr} 已复制，发给朋友吧 ✦`:`Room code ${roomCodeStr} copied — share it with a friend ✦`);
+}
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+/* 让伙伴时长动态增长,营造真实感 */
+setInterval(()=>{
+  if(document.getElementById('room').classList.contains('active')){
+    BUDDIES.forEach(b=>{if(b.live==='#4ade80'&&Math.random()>.4)b.min++;});
+    renderBuddies();renderRank();
+  }
+},5000);
+
+/* ============ 计时器 ============ */
+let remaining=pomoMin*60, total=pomoMin*60, running=false, tid=null, round=1, isWork=true;
+function fmt(s){const m=Math.floor(s/60);return `${String(m).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;}
+function updateRoomName(){
+  const el=document.getElementById('rtName');if(!el)return;
+  if(isWork){el.textContent='POMODORO #'+round;}
+  else{el.textContent=lang==='zh'?'休息时间':'Break time';}
+}
+function updateTimer(){
+  document.getElementById('rtTime').textContent=fmt(remaining);
+  const pct=Math.round((1-remaining/total)*100);
+  document.getElementById('rtBar').style.width=pct+'%';
+  document.getElementById('rtPct').textContent=pct+'%';
+  // 在浏览器标签标题显示倒计时,切到别的标签也看得到
+  if(document.getElementById('room').classList.contains('active')){
+    const tag = isWork?(lang==='zh'?'专注':'Focus'):(lang==='zh'?'休息':'Break');
+    document.title = `${fmt(remaining)} · ${tag} — Study Hall`;
+  }
+}
+function tick(){
+  remaining--;
+  if(isWork&&remaining%60===0&&remaining<total)myMin++,renderRank();
+  if(remaining<0){
+    chime();
+    if(isWork){isWork=false;total=remaining=5*60;}
+    else{isWork=true;round++;total=remaining=pomoMin*60;}
+    updateRoomName();
+  }
+  updateTimer();
+}
+function toggleTimer(){
+  running=!running;
+  document.getElementById('playBtn').textContent=running?'⏸':'▶';
+  if(running)tid=setInterval(tick,1000);else clearInterval(tid);
+  document.getElementById('breath').classList.toggle('on',running);
+}
+function skipPhase(){
+  chime();
+  if(isWork){isWork=false;total=remaining=5*60;}
+  else{isWork=true;round++;total=remaining=pomoMin*60;}
+  updateRoomName();updateTimer();
+}
+function resetTimer(){clearInterval(tid);running=false;document.getElementById('playBtn').textContent='▶';document.getElementById('breath').classList.remove('on');isWork=true;total=remaining=pomoMin*60;updateRoomName();updateTimer();}
+
+/* 进入/退出自习室 */
+function enterRoom(){
+  go('room');
+  setBg(curScene.img);
+  total=remaining=pomoMin*60;isWork=true;round=1;myMin=0;
+  updateRoomName();
+  document.getElementById('roomCode').textContent=(lang==='zh'?'⧉ 房间 ':'⧉ Room ')+roomCodeStr;
+  // 同步设置页选的背景音量
+  document.getElementById('rAmb').value=document.getElementById('ambVol').value;
+  renderBuddies();renderRank();updateTimer();
+  // 自动开始计时
+  if(!running)toggleTimer();
+  // 声音不自动播放(浏览器会拦截),提示用户点"声音开"
+  soundOn=false;updateSoundBtn();
+}
+function exitRoom(){
+  clearInterval(tid);running=false;stopAmbient();
+  document.getElementById('breath').classList.remove('on');
+  const room=document.getElementById('room');room.classList.remove('zen','wake');
+  document.title='Study Hall · 静室自习室';
+  go('scenes');
+}
+
+/* ============ 沉浸模式 ============ */
+function toggleZen(){
+  const room=document.getElementById('room');
+  room.classList.toggle('zen');room.classList.remove('wake');
+  document.getElementById('zenBtn').textContent = room.classList.contains('zen')?t('zen_off'):t('zen_on');
+}
+// 沉浸模式下移动鼠标,短暂唤回控制条
+let wakeT=null;
+document.getElementById('room').addEventListener('mousemove',()=>{
+  const room=document.getElementById('room');
+  if(!room.classList.contains('zen'))return;
+  room.classList.add('wake');clearTimeout(wakeT);
+  wakeT=setTimeout(()=>room.classList.remove('wake'),2600);
+});
+
+/* ============ 声音引擎(按场景区分的合成环境音) ============ */
+let actx=null, ambNodes=[], soundOn=false;
+function ctx(){if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume();return actx;}
+function chime(){const a=ctx(),o=a.createOscillator(),g=a.createGain();o.frequency.value=720;o.type='sine';o.connect(g);g.connect(a.destination);g.gain.setValueAtTime(.0001,a.currentTime);g.gain.exponentialRampToValueAtTime(.25,a.currentTime+.04);g.gain.exponentialRampToValueAtTime(.0001,a.currentTime+1.3);o.start();o.stop(a.currentTime+1.3);}
+function noiseBuf(a){const b=a.createBuffer(1,a.sampleRate*4,a.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;return b;}
+
+function ambVolume(){return (document.getElementById('rAmb').value/100);}
+
+/* 为不同场景搭建不同的声音管线;返回 {master, extras, lfos} 便于统一停止 */
+function buildScene(id){
+  const a=ctx();
+  const master=a.createGain();master.gain.value=ambVolume()*.6;master.connect(a.destination);
+  const src=a.createBufferSource();src.buffer=noiseBuf(a);src.loop=true;
+  const lfos=[]; const extras=[src];
+
+  if(id==='cafe'){
+    // 咖啡馆:低频嗡鸣 + 偶发杯碟般的轻微高频
+    const lp=a.createBiquadFilter();lp.type='lowpass';lp.frequency.value=480;lp.Q.value=.6;
+    src.connect(lp);lp.connect(master);
+    const lfo=a.createOscillator(),lg=a.createGain();lfo.frequency.value=.18;lg.gain.value=120;lfo.connect(lg);lg.connect(lp.frequency);lfo.start();lfos.push(lfo);
+  } else if(id==='seaside'){
+    // 海浪:慢速起伏的潮汐(LFO 调制音量,一进一退)
+    const lp=a.createBiquadFilter();lp.type='lowpass';lp.frequency.value=600;
+    const wave=a.createGain();wave.gain.value=.15;
+    src.connect(lp);lp.connect(wave);wave.connect(master);
+    const lfo=a.createOscillator(),lg=a.createGain();lfo.frequency.value=.12;lg.gain.value=.42;lfo.connect(lg);lg.connect(wave.gain);lfo.start();lfos.push(lfo);
+  } else if(id==='library'){
+    // 图书馆:很安静的低频底噪,营造空旷感
+    const lp=a.createBiquadFilter();lp.type='lowpass';lp.frequency.value=320;
+    const q=a.createGain();q.gain.value=.5;
+    src.connect(lp);lp.connect(q);q.connect(master);
+  } else {
+    // 默认/清晨:雨声 — 高通后的密集颗粒 + 轻微起伏
+    const hp=a.createBiquadFilter();hp.type='highpass';hp.frequency.value=600;
+    const lp=a.createBiquadFilter();lp.type='lowpass';lp.frequency.value=5500;
+    src.connect(hp);hp.connect(lp);lp.connect(master);
+    const lfo=a.createOscillator(),lg=a.createGain();lfo.frequency.value=.25;lg.gain.value=.08;lfo.connect(lg);lg.connect(master.gain);lfo.start();lfos.push(lfo);
+  }
+  src.start();
+  return {master,extras,lfos};
+}
+
+function startAmbient(){
+  stopAmbient();
+  const node=buildScene(curScene.id);
+  ambNodes=[node];
+  soundOn=true;
+  updateSoundBtn();
+}
+function stopAmbient(){
+  ambNodes.forEach(n=>{
+    try{n.extras.forEach(x=>x.stop&&x.stop());}catch(e){}
+    try{n.lfos.forEach(l=>l.stop());}catch(e){}
+    try{n.master.disconnect();}catch(e){}
+  });
+  ambNodes=[];soundOn=false;updateSoundBtn();
+}
+function toggleSound(){
+  if(soundOn)stopAmbient();else startAmbient();
+}
+function updateSoundBtn(){
+  const b=document.getElementById('soundBtn');if(!b)return;
+  b.textContent = soundOn ? t('sound_on') : t('sound_off');
+  b.classList.toggle('muted',!soundOn);
+}
+// 音量滑块实时调节
+document.getElementById('rAmb').addEventListener('input',()=>{if(ambNodes[0])ambNodes[0].master.gain.value=ambVolume()*.6;});
+
+renderBuddies();renderRank();applyLang();updateSoundBtn();
+</script>
+</body>
+</html>
