@@ -146,16 +146,27 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 .rc-btn.sound-btn{border:1px solid var(--border);color:var(--ink);background:var(--accent-soft,rgba(216,189,140,.12));}
 .rc-btn.sound-btn.muted{color:var(--ink-faint);background:none;border-color:var(--border-soft);}
 
+/* 声音+音乐选择面板 */
+.audio-picker{position:absolute;bottom:108px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:8px;background:var(--glass);backdrop-filter:blur(22px);border:1px solid var(--border-soft);border-radius:18px;padding:12px 14px;max-width:92vw;}
+.pick-row{display:flex;align-items:center;gap:10px;}
+.pick-label{font-size:11px;color:var(--ink-faint);letter-spacing:.1em;width:46px;flex-shrink:0;text-align:right;}
+.sound-picker{display:flex;gap:8px;flex-wrap:wrap;}
+.snd-btn{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:58px;padding:8px 7px;border:1px solid var(--border-soft);border-radius:12px;background:rgba(255,255,255,.02);color:var(--ink-dim);cursor:pointer;transition:.3s var(--ease);font-family:var(--body);font-size:17px;}
+.snd-btn:hover{border-color:var(--accent-dim);color:var(--ink);}
+.snd-btn.on{background:var(--accent);border-color:var(--accent);color:#1a1610;}
+.snd-btn .snd-label{font-size:11px;letter-spacing:.02em;}
+
 /* 沉浸模式按钮 */
 .zen-toggle{position:absolute;top:26px;left:50%;transform:translateX(-50%);z-index:6;}
 /* 沉浸模式开启:淡出一切辅助 UI,只留计时与呼吸 */
-#room.zen .goal-bar,#room.zen .buddies,#room.zen .rank,#room.zen .room-ctrl,#room.zen .exit-room,#room.zen .zen-toggle{
+#room.zen .goal-bar,#room.zen .buddies,#room.zen .rank,#room.zen .room-ctrl,#room.zen .audio-picker,#room.zen .todo-panel,#room.zen .exit-room,#room.zen .zen-toggle{
   opacity:0;pointer-events:none;transform:translateY(8px);transition:.9s var(--ease);}
 #room.zen .goal-bar{transform:translateX(-50%) translateY(-8px);}
 #room.zen .room-ctrl{transform:translateX(-50%) translateY(8px);}
-#room:not(.zen) .goal-bar,#room:not(.zen) .buddies,#room:not(.zen) .rank,#room:not(.zen) .room-ctrl,#room:not(.zen) .exit-room,#room:not(.zen) .zen-toggle{transition:.9s var(--ease);}
+#room.zen .audio-picker{transform:translateX(-50%) translateY(8px);}
+#room:not(.zen) .goal-bar,#room:not(.zen) .buddies,#room:not(.zen) .rank,#room:not(.zen) .room-ctrl,#room:not(.zen) .audio-picker,#room:not(.zen) .exit-room,#room:not(.zen) .zen-toggle{transition:.9s var(--ease);}
 /* 沉浸模式下移动鼠标临时唤回控制条 */
-#room.zen.wake .room-ctrl,#room.zen.wake .zen-toggle{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0);}
+#room.zen.wake .room-ctrl,#room.zen.wake .audio-picker,#room.zen.wake .zen-toggle{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0);}
 
 /* ===== 联动伙伴 ===== */
 .buddies{position:absolute;top:84px;right:48px;width:258px;background:var(--glass);backdrop-filter:blur(24px);border:1px solid var(--border-soft);border-radius:22px;padding:22px;}
@@ -187,6 +198,38 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 
 .exit-room{position:absolute;top:26px;right:48px;}
 
+/* ===== 待办清单 ===== */
+.todo-panel{position:absolute;top:84px;left:48px;width:248px;background:var(--glass);backdrop-filter:blur(24px);border:1px solid var(--border-soft);border-radius:22px;padding:20px;}
+.todo-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.todo-head h3{font-family:var(--display);font-size:16px;font-weight:500;letter-spacing:.04em;}
+.todo-collapse{color:var(--ink-faint);cursor:pointer;font-size:13px;transition:.3s var(--ease);user-select:none;}
+.todo-panel.collapsed .todo-body{display:none;}
+.todo-panel.collapsed .todo-collapse{transform:rotate(-90deg);}
+.todo-tabs{display:flex;gap:6px;margin-bottom:14px;}
+.todo-tab{flex:1;padding:7px 0;font-size:12px;border:1px solid var(--border-soft);border-radius:10px;background:rgba(255,255,255,.02);color:var(--ink-dim);cursor:pointer;transition:.25s var(--ease);font-family:var(--body);}
+.todo-tab:hover{color:var(--ink);}
+.todo-tab.sel{background:var(--accent);color:#1a1610;border-color:var(--accent);font-weight:500;}
+.todo-list{display:flex;flex-direction:column;gap:8px;max-height:230px;overflow-y:auto;margin-bottom:12px;min-height:40px;}
+.todo-list::-webkit-scrollbar{width:4px;}
+.todo-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+.todo-item{display:flex;align-items:flex-start;gap:9px;font-size:13px;line-height:1.4;color:var(--ink);group:hover;}
+.todo-check{width:16px;height:16px;flex-shrink:0;margin-top:1px;border:1.5px solid var(--ink-faint);border-radius:5px;cursor:pointer;transition:.2s var(--ease);display:flex;align-items:center;justify-content:center;font-size:10px;color:transparent;}
+.todo-check:hover{border-color:var(--accent);}
+.todo-item.done .todo-check{background:var(--accent);border-color:var(--accent);color:#1a1610;}
+.todo-item.done .todo-text{color:var(--ink-faint);text-decoration:line-through;}
+.todo-text{flex:1;cursor:default;word-break:break-word;}
+.todo-del{color:var(--ink-faint);cursor:pointer;opacity:0;transition:.2s;font-size:14px;line-height:1;flex-shrink:0;}
+.todo-item:hover .todo-del{opacity:1;}
+.todo-del:hover{color:#e88;}
+.todo-empty{font-size:12px;color:var(--ink-faint);text-align:center;padding:14px 0;}
+.todo-add{display:flex;gap:8px;}
+.todo-add input{flex:1;background:rgba(255,255,255,.04);border:1px solid var(--border-soft);border-radius:10px;padding:8px 11px;color:var(--ink);font-family:var(--body);font-size:13px;outline:none;}
+.todo-add input:focus{border-color:var(--accent-dim);}
+.todo-add input::placeholder{color:var(--ink-faint);}
+.todo-add-btn{width:34px;border:1px solid var(--border-soft);border-radius:10px;background:rgba(255,255,255,.04);color:var(--ink);cursor:pointer;font-size:17px;transition:.25s var(--ease);}
+.todo-add-btn:hover{background:var(--accent);color:#1a1610;border-color:var(--accent);}
+.todo-progress{font-size:11px;color:var(--ink-faint);margin-top:2px;letter-spacing:.04em;}
+
 /* toast */
 .toast{position:fixed;bottom:120px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--glass-strong);backdrop-filter:blur(20px);border:1px solid var(--border);border-radius:30px;padding:12px 24px;font-size:13px;z-index:100;opacity:0;transition:.4s;pointer-events:none;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
@@ -200,7 +243,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
   #room{justify-content:flex-start;overflow-y:auto;padding:72px 0 130px;}
   .room-timer{position:static;margin:30px auto 24px;}
   .room-timer .rt-time{font-size:84px;}
-  .buddies,.rank{position:static;width:auto;margin:12px 24px;}
+  .buddies,.rank,.todo-panel{position:static;width:auto;margin:12px 24px;}
   .goal-bar{position:static;transform:none;width:auto;margin:0 24px 8px;}
   .room-ctrl{flex-wrap:wrap;justify-content:center;width:min(90vw,420px);bottom:24px;}
 }
@@ -308,6 +351,26 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
     <input type="text" data-i18n-ph="goal_ph" placeholder="写下今天想完成的事…" id="goalInput">
   </div>
 
+  <!-- 待办清单(今天/本周/本月) -->
+  <div class="todo-panel fade-in" id="todoPanel">
+    <div class="todo-head">
+      <h3 data-i18n="todo_title">待办清单</h3>
+      <span class="todo-collapse" onclick="toggleTodo()" id="todoCollapse">▾</span>
+    </div>
+    <div class="todo-body" id="todoBody">
+      <div class="todo-tabs">
+        <button class="todo-tab sel" data-bucket="today" data-i18n="todo_today">今天</button>
+        <button class="todo-tab" data-bucket="week" data-i18n="todo_week">本周</button>
+        <button class="todo-tab" data-bucket="month" data-i18n="todo_month">本月</button>
+      </div>
+      <div class="todo-list" id="todoList"></div>
+      <div class="todo-add">
+        <input type="text" id="todoInput" data-i18n-ph="todo_ph" placeholder="添加一项…" maxlength="80">
+        <button onclick="addTodo()" class="todo-add-btn">+</button>
+      </div>
+    </div>
+  </div>
+
   <!-- 伙伴联动 -->
   <div class="buddies fade-in">
     <div class="buddies-head">
@@ -325,9 +388,22 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
     <div id="rankList"></div>
   </div>
 
+  <!-- 声音 + 音乐选择面板 -->
+  <div class="audio-picker fade-in">
+    <div class="pick-row">
+      <span class="pick-label" data-i18n="ambient">背景音</span>
+      <div class="sound-picker" id="soundPicker"></div>
+    </div>
+    <div class="pick-row">
+      <span class="pick-label" data-i18n="music">音乐</span>
+      <div class="sound-picker" id="musicPicker"></div>
+    </div>
+  </div>
+
   <div class="room-ctrl fade-in">
     <button class="rc-btn sound-btn" id="soundBtn" onclick="toggleSound()">🔇 声音关</button>
-    <div class="mini-vol"><input type="range" id="rAmb" min="0" max="100" value="55"></div>
+    <div class="mini-vol">🔉 <input type="range" id="rAmb" min="0" max="100" value="55"></div>
+    <div class="mini-vol">🎵 <input type="range" id="rMusic" min="0" max="100" value="55"></div>
     <div class="rc-divider"></div>
     <button class="rc-btn play" id="playBtn" onclick="toggleTimer()">⏸</button>
     <button class="rc-btn" onclick="skipPhase()"><span data-i18n="skip">⏭ 跳过</span></button>
@@ -348,6 +424,22 @@ const SCENES=[
    img:'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=1600&q=80'},
   {id:'seaside',name:'海边书房',name_en:'Seaside Study',tags:'海风、蓝光、开阔视野',tags_en:'Sea breeze · blue light · open view',amb:'海浪与微风',amb_en:'Waves & gentle wind',
    img:'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=1600&q=80'},
+  {id:'forest',name:'森林清晨',name_en:'Forest Dawn',tags:'晨雾、树影、鸟鸣',tags_en:'Mist · trees · birdsong',amb:'林间风声与细雨',amb_en:'Forest wind & light rain',
+   img:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1600&q=80'},
+  {id:'desklamp',name:'深夜书桌',name_en:'Night Desk',tags:'台灯、暖光、独处',tags_en:'Desk lamp · warm light · solitude',amb:'室内静谧白噪音',amb_en:'Quiet indoor white noise',
+   img:'https://images.unsplash.com/photo-1542435503-956c469947f6?w=1600&q=80'},
+  {id:'cabin',name:'雪山木屋',name_en:'Snow Cabin',tags:'雪峰、冷光、安静桌面',tags_en:'Snow peaks · cool light · calm desk',amb:'风雪与壁炉噼啪',amb_en:'Snow wind & crackling fire',
+   img:'https://images.unsplash.com/photo-1517299321609-52687d1bc55a?w=1600&q=80'},
+  {id:'rainybed',name:'雨夜卧室',name_en:'Rainy Bedroom',tags:'夜雨、暖被、低光',tags_en:'Night rain · warmth · low light',amb:'窗上雨声',amb_en:'Rain on the window',
+   img:'https://images.unsplash.com/photo-1496417263034-38ec4f0b665a?w=1600&q=80'},
+  {id:'space',name:'太空星空',name_en:'Starry Space',tags:'星海、深蓝、无垠',tags_en:'Stars · deep blue · infinite',amb:'低频太空嗡鸣',amb_en:'Deep space hum',
+   img:'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=1600&q=80'},
+  {id:'bamboo',name:'竹林禅意',name_en:'Bamboo Zen',tags:'竹影、清风、静心',tags_en:'Bamboo · breeze · stillness',amb:'竹叶沙沙与流水',amb_en:'Bamboo leaves & stream',
+   img:'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=1600&q=80'},
+  {id:'fireplace',name:'壁炉火光',name_en:'Fireside',tags:'炉火、暖橙、木屋',tags_en:'Fire · warm orange · wood',amb:'柴火噼啪声',amb_en:'Crackling firewood',
+   img:'https://images.unsplash.com/photo-1543589077-47d81606c1bf?w=1600&q=80'},
+  {id:'balcony',name:'夏夜阳台',name_en:'Summer Balcony',tags:'夜风、虫鸣、城市灯',tags_en:'Night breeze · crickets · city lights',amb:'夏夜虫鸣',amb_en:'Summer night crickets',
+   img:'https://images.unsplash.com/photo-1499002238440-d264edd596ec?w=1600&q=80'},
 ];
 /* ============ 偏好持久化(GitHub Pages 等独立环境可用) ============ */
 const PREFS_KEY='studyhall_prefs';
@@ -382,6 +474,11 @@ const I18N={
   skip:{zh:'⏭ 跳过',en:'⏭ Skip'}, reset:{zh:'↺ 重置',en:'↺ Reset'},
   zen_on:{zh:'⊹ 沉浸模式',en:'⊹ Zen mode'}, zen_off:{zh:'⊹ 退出沉浸',en:'⊹ Exit zen'},
   sound_on:{zh:'🔊 声音开',en:'🔊 Sound on'}, sound_off:{zh:'🔇 声音关',en:'🔇 Sound off'},
+  snd_rain:{zh:'雨声',en:'Rain'}, snd_drip:{zh:'水滴',en:'Drips'}, snd_storm:{zh:'暴雨',en:'Storm'},
+  snd_waves:{zh:'海浪',en:'Waves'}, snd_white:{zh:'白噪音',en:'White'},
+  todo_title:{zh:'待办清单',en:'To-do'}, todo_today:{zh:'今天',en:'Today'}, todo_week:{zh:'本周',en:'Week'}, todo_month:{zh:'本月',en:'Month'},
+  todo_ph:{zh:'添加一项…',en:'Add a task…'}, todo_empty:{zh:'还没有待办,加一项吧',en:'Nothing yet — add one'},
+  mus_none:{zh:'无',en:'None'}, mus_lofi:{zh:'Lo-fi',en:'Lo-fi'}, mus_piano:{zh:'钢琴',en:'Piano'}, mus_strings:{zh:'弦乐',en:'Strings'},
 };
 function t(key){return (I18N[key]&&I18N[key][lang])||key;}
 
@@ -391,7 +488,7 @@ function applyLang(){
   document.querySelectorAll('[data-i18n-ph]').forEach(el=>{el.placeholder=t(el.dataset.i18nPh);});
   document.getElementById('langBtn').textContent = lang==='zh'?'中文 ▾':'EN ▾';
   // 重渲染动态内容
-  renderScenes(); renderBuddies(); renderRank(); updateRoomName();
+  renderScenes(); renderBuddies(); renderRank(); updateRoomName(); if(typeof renderSoundButtons==='function')renderSoundButtons(); if(typeof renderMusicButtons==='function')renderMusicButtons(); if(typeof renderTodos==='function')renderTodos();
 }
 function toggleLang(){lang = lang==='zh'?'en':'zh'; savePrefs({lang}); applyLang();}
 
@@ -406,7 +503,7 @@ function renderScenes(){
     c.innerHTML=`<div class="img" style="background-image:url('${s.img}')"></div>
       <div class="ov"></div><span class="scene-tag">SCENE</span>
       <div class="meta"><h3>${nm}</h3><div class="tags">${tg}</div><div class="amb">${am}</div></div>`;
-    c.onclick=()=>{curScene=s;savePrefs({scene:s.id});renderScenes();setBg(s.img);if(soundOn)startAmbient();};
+    c.onclick=()=>{curScene=s;savePrefs({scene:s.id});renderScenes();setBg(s.img);};
     grid.appendChild(c);
   });
 }
@@ -550,11 +647,12 @@ function enterRoom(){
   renderBuddies();renderRank();updateTimer();
   // 自动开始计时
   if(!running)toggleTimer();
-  // 声音不自动播放(浏览器会拦截),提示用户点"声音开"
-  soundOn=false;updateSoundBtn();
+  // 声音不自动播放(浏览器会拦截),由用户点声音按钮开启
+  refreshSoundState();
 }
 function exitRoom(){
-  clearInterval(tid);running=false;stopAmbient();
+  clearInterval(tid);running=false;stopAllSound();
+  if(musicNode){musicNode.stop();musicNode=null;curMusic='none';refreshMusicState();}
   document.getElementById('breath').classList.remove('on');
   const room=document.getElementById('room');room.classList.remove('zen','wake');
   document.title='Study Hall · 静室自习室';
@@ -576,75 +674,340 @@ document.getElementById('room').addEventListener('mousemove',()=>{
   wakeT=setTimeout(()=>room.classList.remove('wake'),2600);
 });
 
-/* ============ 声音引擎(按场景区分的合成环境音) ============ */
-let actx=null, ambNodes=[], soundOn=false;
-function ctx(){if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume();return actx;}
-function chime(){const a=ctx(),o=a.createOscillator(),g=a.createGain();o.frequency.value=720;o.type='sine';o.connect(g);g.connect(a.destination);g.gain.setValueAtTime(.0001,a.currentTime);g.gain.exponentialRampToValueAtTime(.25,a.currentTime+.04);g.gain.exponentialRampToValueAtTime(.0001,a.currentTime+1.3);o.start();o.stop(a.currentTime+1.3);}
-function noiseBuf(a){const b=a.createBuffer(1,a.sampleRate*4,a.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;return b;}
+/* ============ 待办清单(今天/本周/本月,本地存储) ============ */
+const TODO_KEY='studyhall_todos';
+let todos=loadTodos();
+let curBucket='today';
 
+function loadTodos(){try{return JSON.parse(localStorage.getItem(TODO_KEY))||{today:[],week:[],month:[]};}catch(e){return {today:[],week:[],month:[]};}}
+function saveTodos(){try{localStorage.setItem(TODO_KEY,JSON.stringify(todos));}catch(e){}}
+
+function renderTodos(){
+  const list=document.getElementById('todoList');if(!list)return;
+  const items=todos[curBucket]||[];
+  list.innerHTML='';
+  if(items.length===0){
+    list.innerHTML=`<div class="todo-empty">${t('todo_empty')}</div>`;return;
+  }
+  items.forEach((it,i)=>{
+    const row=document.createElement('div');
+    row.className='todo-item'+(it.done?' done':'');
+    row.innerHTML=`<div class="todo-check">✓</div><div class="todo-text"></div><span class="todo-del">×</span>`;
+    row.querySelector('.todo-text').textContent=it.text;
+    row.querySelector('.todo-check').onclick=()=>{it.done=!it.done;saveTodos();renderTodos();};
+    row.querySelector('.todo-del').onclick=()=>{items.splice(i,1);saveTodos();renderTodos();};
+    list.appendChild(row);
+  });
+}
+function addTodo(){
+  const inp=document.getElementById('todoInput');
+  const v=inp.value.trim();if(!v)return;
+  todos[curBucket].push({text:v,done:false});
+  inp.value='';saveTodos();renderTodos();
+}
+function toggleTodo(){
+  document.getElementById('todoPanel').classList.toggle('collapsed');
+}
+// 切换分类标签
+document.querySelectorAll('.todo-tab').forEach(tab=>{
+  tab.onclick=()=>{
+    document.querySelectorAll('.todo-tab').forEach(x=>x.classList.remove('sel'));
+    tab.classList.add('sel');curBucket=tab.dataset.bucket;renderTodos();
+  };
+});
+// 回车添加
+document.getElementById('todoInput').addEventListener('keydown',e=>{if(e.key==='Enter')addTodo();});
+
+
+let actx=null, soundOn=false;
+const layers={}; // id -> {gain, sources:[], lfos:[], timers:[]}
+let masterGain=null;
+
+function ctx(){if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume();return actx;}
+function master(){
+  const a=ctx();
+  if(!masterGain){masterGain=a.createGain();masterGain.gain.value=ambVolume()*.8;masterGain.connect(a.destination);}
+  return masterGain;
+}
+function chime(){const a=ctx(),o=a.createOscillator(),g=a.createGain();o.frequency.value=720;o.type='sine';o.connect(g);g.connect(a.destination);g.gain.setValueAtTime(.0001,a.currentTime);g.gain.exponentialRampToValueAtTime(.25,a.currentTime+.04);g.gain.exponentialRampToValueAtTime(.0001,a.currentTime+1.3);o.start();o.stop(a.currentTime+1.3);}
+function noiseBuf(a){const b=a.createBuffer(2,a.sampleRate*5,a.sampleRate);for(let ch=0;ch<2;ch++){const d=b.getChannelData(ch);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;}return b;}
 function ambVolume(){return (document.getElementById('rAmb').value/100);}
 
-/* 为不同场景搭建不同的声音管线;返回 {master, extras, lfos} 便于统一停止 */
-function buildScene(id){
+/* 五种声音定义 */
+const SOUNDS=[
+  {id:'rain',icon:'🌧️'},
+  {id:'drip',icon:'💧'},
+  {id:'storm',icon:'⛈️'},
+  {id:'waves',icon:'🌊'},
+  {id:'white',icon:'📻'},
+];
+
+/* ============ 音乐风格引擎(合成和声垫音,单选) ============ */
+const MUSIC=[
+  {id:'none',icon:'🚫'},
+  {id:'lofi',icon:'🎧'},
+  {id:'piano',icon:'🎹'},
+  {id:'strings',icon:'🎻'},
+];
+let curMusic='none';
+let musicNode=null;
+// 一组舒缓的和弦进行(C - Am - F - G),每个和弦的频率(Hz)
+const CHORDS=[
+  [261.63,329.63,392.00], // C
+  [220.00,261.63,329.63], // Am
+  [174.61,220.00,261.63], // F
+  [196.00,246.94,293.66], // G
+];
+function buildMusic(style){
   const a=ctx();
-  const master=a.createGain();master.gain.value=ambVolume()*.6;master.connect(a.destination);
-  const src=a.createBufferSource();src.buffer=noiseBuf(a);src.loop=true;
-  const lfos=[]; const extras=[src];
+  const g=a.createGain();g.gain.value=(document.getElementById('rMusic')?document.getElementById('rMusic').value/100:.5)*.18;
+  g.connect(master());
+  const oscs=[],timers=[];
+  let chordIdx=0;
 
-  if(id==='cafe'){
-    // 咖啡馆:低频嗡鸣 + 偶发杯碟般的轻微高频
-    const lp=a.createBiquadFilter();lp.type='lowpass';lp.frequency.value=480;lp.Q.value=.6;
-    src.connect(lp);lp.connect(master);
-    const lfo=a.createOscillator(),lg=a.createGain();lfo.frequency.value=.18;lg.gain.value=120;lfo.connect(lg);lg.connect(lp.frequency);lfo.start();lfos.push(lfo);
-  } else if(id==='seaside'){
-    // 海浪:慢速起伏的潮汐(LFO 调制音量,一进一退)
-    const lp=a.createBiquadFilter();lp.type='lowpass';lp.frequency.value=600;
-    const wave=a.createGain();wave.gain.value=.15;
-    src.connect(lp);lp.connect(wave);wave.connect(master);
-    const lfo=a.createOscillator(),lg=a.createGain();lfo.frequency.value=.12;lg.gain.value=.42;lfo.connect(lg);lg.connect(wave.gain);lfo.start();lfos.push(lfo);
-  } else if(id==='library'){
-    // 图书馆:很安静的低频底噪,营造空旷感
-    const lp=a.createBiquadFilter();lp.type='lowpass';lp.frequency.value=320;
-    const q=a.createGain();q.gain.value=.5;
-    src.connect(lp);lp.connect(q);q.connect(master);
-  } else {
-    // 默认/清晨:雨声 — 高通后的密集颗粒 + 轻微起伏
-    const hp=a.createBiquadFilter();hp.type='highpass';hp.frequency.value=600;
-    const lp=a.createBiquadFilter();lp.type='lowpass';lp.frequency.value=5500;
-    src.connect(hp);hp.connect(lp);lp.connect(master);
-    const lfo=a.createOscillator(),lg=a.createGain();lfo.frequency.value=.25;lg.gain.value=.08;lfo.connect(lg);lg.connect(master.gain);lfo.start();lfos.push(lfo);
+  // 音色:lofi 用三角波+低通(闷暖),piano 用正弦短促,strings 用锯齿+慢起音
+  const wave = style==='strings'?'sawtooth':(style==='lofi'?'triangle':'sine');
+  const lp=a.createBiquadFilter();lp.type='lowpass';
+  lp.frequency.value = style==='lofi'?900:(style==='strings'?2200:1600);
+  lp.connect(g);
+
+  function playChord(){
+    const chord=CHORDS[chordIdx%CHORDS.length];chordIdx++;
+    const now=a.currentTime;
+    chord.forEach((f,i)=>{
+      const o=a.createOscillator(),og=a.createGain();
+      o.type=wave;o.frequency.value=f;
+      o.connect(og);og.connect(lp);
+      // 慢起慢落的包络;piano 的衰减更快
+      const atk = style==='piano'?.02:(style==='strings'?1.2:.6);
+      const peak = .25/chord.length;
+      const dur = style==='piano'?2.2:3.6;
+      og.gain.setValueAtTime(.0001,now+i*(style==='piano'?.12:0));
+      og.gain.exponentialRampToValueAtTime(peak,now+atk+i*.05);
+      og.gain.exponentialRampToValueAtTime(.0001,now+dur);
+      o.start(now);o.stop(now+dur+.1);
+    });
   }
-  src.start();
-  return {master,extras,lfos};
+  playChord();
+  const interval = style==='piano'?2600:3800;
+  const tid=setInterval(playChord,interval);timers.push(tid);
+  return {g,timers,stop:()=>{timers.forEach(clearInterval);try{g.disconnect();}catch(e){}}};
 }
+// 音乐文件路径
+const MUSIC_FILES={lofi:'sounds/lofi.mp3',piano:'sounds/piano.mp3',strings:'sounds/strings.mp3'};
+function musicVol(){const el=document.getElementById('rMusic');return el?el.value/100:.5;}
 
-function startAmbient(){
-  stopAmbient();
-  const node=buildScene(curScene.id);
-  ambNodes=[node];
-  soundOn=true;
-  updateSoundBtn();
+function setMusic(style){
+  // 停掉现有音乐
+  if(musicNode){musicNode.stop();musicNode=null;}
+  curMusic=style;
+  savePrefs({music:style});
+  if(style!=='none'){
+    ctx();
+    if(MUSIC_FILES[style]){
+      // 优先真实音频
+      const audio=new Audio(MUSIC_FILES[style]);
+      audio.loop=true;audio.volume=musicVol();
+      const onFail=()=>{if(musicNode&&musicNode.isAudio){musicNode=buildMusic(style);}};
+      audio.addEventListener('error',onFail,{once:true});
+      audio.play().catch(onFail);
+      musicNode={audio,isAudio:true,g:null,stop:()=>{try{audio.pause();audio.src='';}catch(e){}}};
+    } else {
+      musicNode=buildMusic(style);
+    }
+  }
+  refreshMusicState();
 }
-function stopAmbient(){
-  ambNodes.forEach(n=>{
-    try{n.extras.forEach(x=>x.stop&&x.stop());}catch(e){}
-    try{n.lfos.forEach(l=>l.stop());}catch(e){}
-    try{n.master.disconnect();}catch(e){}
+function refreshMusicState(){
+  MUSIC.forEach(m=>{
+    const el=document.getElementById('mus_'+m.id);
+    if(el)el.classList.toggle('on',curMusic===m.id);
   });
-  ambNodes=[];soundOn=false;updateSoundBtn();
 }
-function toggleSound(){
-  if(soundOn)stopAmbient();else startAmbient();
+function renderMusicButtons(){
+  const wrap=document.getElementById('musicPicker');if(!wrap)return;
+  wrap.innerHTML='';
+  MUSIC.forEach(m=>{
+    const b=document.createElement('button');
+    b.className='snd-btn';b.id='mus_'+m.id;
+    b.innerHTML=`<span>${m.icon}</span><span class="snd-label">${t('mus_'+m.id)}</span>`;
+    b.onclick=()=>setMusic(curMusic===m.id?'none':m.id);
+    wrap.appendChild(b);
+  });
+  refreshMusicState();
 }
-function updateSoundBtn(){
-  const b=document.getElementById('soundBtn');if(!b)return;
-  b.textContent = soundOn ? t('sound_on') : t('sound_off');
-  b.classList.toggle('muted',!soundOn);
-}
-// 音量滑块实时调节
-document.getElementById('rAmb').addEventListener('input',()=>{if(ambNodes[0])ambNodes[0].master.gain.value=ambVolume()*.6;});
+// 音乐音量滑块
+document.addEventListener('input',e=>{
+  if(e.target&&e.target.id==='rMusic'&&musicNode){
+    if(musicNode.isAudio)musicNode.audio.volume=e.target.value/100;
+    else if(musicNode.g)musicNode.g.gain.value=(e.target.value/100)*.18;
+  }
+});
 
-renderBuddies();renderRank();applyLang();updateSoundBtn();
+/* 构建单层声音,返回需要清理的节点集合 */
+function buildLayer(id){
+  const a=ctx(); const g=a.createGain(); g.connect(master());
+  const sources=[],lfos=[],timers=[];
+  const noise=()=>{const s=a.createBufferSource();s.buffer=noiseBuf(a);s.loop=true;sources.push(s);return s;};
+
+  if(id==='rain'){
+    // 雨声:中高频带通噪音 + 缓慢起伏
+    const s=noise();
+    const hp=a.createBiquadFilter();hp.type='highpass';hp.frequency.value=800;
+    const lp=a.createBiquadFilter();lp.type='lowpass';lp.frequency.value=6000;
+    g.gain.value=.5;
+    s.connect(hp);hp.connect(lp);lp.connect(g);
+    const lfo=a.createOscillator(),lg=a.createGain();lfo.frequency.value=.22;lg.gain.value=.06;lfo.connect(lg);lg.connect(g.gain);lfo.start();lfos.push(lfo);
+    s.start();
+  }
+  else if(id==='white'){
+    // 白噪音:纯净全频
+    const s=noise(); g.gain.value=.32; s.connect(g); s.start();
+  }
+  else if(id==='waves'){
+    // 海浪:低频噪音 + 慢速一进一退的潮汐
+    const s=noise();
+    const lp=a.createBiquadFilter();lp.type='lowpass';lp.frequency.value=700;
+    const wave=a.createGain();wave.gain.value=.2;
+    g.gain.value=.6;
+    s.connect(lp);lp.connect(wave);wave.connect(g);
+    const lfo=a.createOscillator(),lg=a.createGain();lfo.frequency.value=.1;lg.gain.value=.5;lfo.connect(lg);lg.connect(wave.gain);lfo.start();lfos.push(lfo);
+    // 潮汐推进时,滤波频率同步起伏,更有"哗——"的层次
+    const lfo2=a.createOscillator(),lg2=a.createGain();lfo2.frequency.value=.1;lg2.gain.value=350;lfo2.connect(lg2);lg2.connect(lp.frequency);lfo2.start();lfos.push(lfo2);
+    s.start();
+  }
+  else if(id==='storm'){
+    // 暴雨:更宽频更响的雨 + 偶发低频雷鸣
+    const s=noise();
+    const hp=a.createBiquadFilter();hp.type='highpass';hp.frequency.value=400;
+    g.gain.value=.7;
+    s.connect(hp);hp.connect(g);
+    const lfo=a.createOscillator(),lg=a.createGain();lfo.frequency.value=.3;lg.gain.value=.1;lfo.connect(lg);lg.connect(g.gain);lfo.start();lfos.push(lfo);
+    s.start();
+    // 随机雷声:一团低频噪音快速衰减
+    const thunder=()=>{
+      const ta=ctx();
+      const ts=ta.createBufferSource();ts.buffer=noiseBuf(ta);
+      const tlp=ta.createBiquadFilter();tlp.type='lowpass';tlp.frequency.value=200;
+      const tg=ta.createGain();
+      ts.connect(tlp);tlp.connect(tg);tg.connect(master());
+      const now=ta.currentTime;
+      tg.gain.setValueAtTime(.0001,now);
+      tg.gain.exponentialRampToValueAtTime(.6*ambVolume()+.05,now+.1);
+      tg.gain.exponentialRampToValueAtTime(.0001,now+2.2);
+      ts.start(now);ts.stop(now+2.4);
+      timers.push(setTimeout(thunder, 8000+Math.random()*14000));
+    };
+    timers.push(setTimeout(thunder, 4000+Math.random()*6000));
+  }
+  else if(id==='drip'){
+    // 水滴:随机触发单个"嘀嗒"音粒(正弦下滑 + 短包络)
+    g.gain.value=.9;
+    const drop=()=>{
+      const da=ctx();
+      const o=da.createOscillator(),og=da.createGain();
+      const base=700+Math.random()*900;
+      o.frequency.setValueAtTime(base,da.currentTime);
+      o.frequency.exponentialRampToValueAtTime(base*.5,da.currentTime+.12);
+      o.type='sine';
+      o.connect(og);og.connect(g);
+      const now=da.currentTime;
+      og.gain.setValueAtTime(.0001,now);
+      og.gain.exponentialRampToValueAtTime(.5,now+.005);
+      og.gain.exponentialRampToValueAtTime(.0001,now+.18);
+      o.start(now);o.stop(now+.2);
+      timers.push(setTimeout(drop, 400+Math.random()*1400));
+    };
+    timers.push(setTimeout(drop, 300+Math.random()*600));
+  }
+  return {gain:g, sources, lfos, timers};
+}
+
+// 音频文件路径映射(放在 sounds/ 文件夹)
+const SOUND_FILES={rain:'sounds/rain.mp3',drip:'sounds/drip.mp3',storm:'sounds/storm.mp3',waves:'sounds/waves.mp3',white:'sounds/white.mp3'};
+
+function startLayer(id){
+  if(layers[id])return;
+  ctx(); // 激活 audio context
+  // 优先用真实音频文件
+  if(SOUND_FILES[id]){
+    const audio=new Audio(SOUND_FILES[id]);
+    audio.loop=true;
+    audio.volume=ambVolume();
+    const onFail=()=>{
+      // 文件加载失败 → 退回合成音
+      if(layers[id]&&layers[id].isAudio){delete layers[id];layers[id]=buildLayer(id);layers[id].isSynth=true;refreshSoundState();}
+    };
+    audio.addEventListener('error',onFail,{once:true});
+    audio.play().catch(onFail);
+    layers[id]={audio,isAudio:true};
+  } else {
+    layers[id]=buildLayer(id);layers[id].isSynth=true;
+  }
+  refreshSoundState();
+}
+function stopLayer(id){
+  const L=layers[id];if(!L)return;
+  if(L.isAudio){
+    try{L.audio.pause();L.audio.src='';}catch(e){}
+  } else {
+    try{L.sources.forEach(s=>s.stop());}catch(e){}
+    try{L.lfos.forEach(l=>l.stop());}catch(e){}
+    L.timers.forEach(t=>clearTimeout(t));
+    try{L.gain.disconnect();}catch(e){}
+  }
+  delete layers[id];
+  refreshSoundState();
+}
+function toggleLayer(id){
+  if(layers[id])stopLayer(id);else startLayer(id);
+}
+function stopAllSound(){
+  Object.keys(layers).forEach(stopLayer);
+  refreshSoundState();
+}
+function anySoundOn(){return Object.keys(layers).length>0;}
+function refreshSoundState(){
+  soundOn=anySoundOn();
+  // 更新每个声音按钮的高亮
+  SOUNDS.forEach(s=>{
+    const el=document.getElementById('snd_'+s.id);
+    if(el)el.classList.toggle('on',!!layers[s.id]);
+  });
+  // 主开关按钮文案
+  const b=document.getElementById('soundBtn');
+  if(b){b.textContent=soundOn?t('sound_on'):t('sound_off');b.classList.toggle('muted',!soundOn);}
+}
+// 主开关:开则默认开雨声,关则全部停
+function toggleSound(){
+  if(soundOn)stopAllSound();
+  else startLayer('rain');
+}
+function updateSoundBtn(){refreshSoundState();}
+
+// 音量滑块实时调节总音量
+document.getElementById('rAmb').addEventListener('input',()=>{
+  if(masterGain)masterGain.gain.value=ambVolume()*.8;
+  Object.values(layers).forEach(L=>{if(L.isAudio)L.audio.volume=ambVolume();});
+});
+
+/* 渲染五个声音开关按钮 */
+function renderSoundButtons(){
+  const wrap=document.getElementById('soundPicker');if(!wrap)return;
+  wrap.innerHTML='';
+  SOUNDS.forEach(s=>{
+    const b=document.createElement('button');
+    b.className='snd-btn';b.id='snd_'+s.id;
+    b.innerHTML=`<span>${s.icon}</span><span class="snd-label">${t('snd_'+s.id)}</span>`;
+    b.onclick=()=>toggleLayer(s.id);
+    wrap.appendChild(b);
+  });
+  refreshSoundState();
+}
+
+renderBuddies();renderRank();renderSoundButtons();renderMusicButtons();renderTodos();applyLang();updateSoundBtn();
+// 恢复音乐偏好(若有);音乐同样需用户交互后才出声,这里只记住选择
+if(_p.music&&['lofi','piano','strings'].includes(_p.music)){curMusic=_p.music;refreshMusicState();}
 </script>
 </body>
 </html>
